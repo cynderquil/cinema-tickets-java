@@ -62,4 +62,30 @@ class TicketServiceTests {
             ticketService.purchaseTickets(1L, ticketRequest)
         );
     }
+
+    // Test Case 5 - Checks if the total payment is calculated correctly when a child ticket, an infant ticket, and an adult ticket are purchased.
+    @Test
+    void shouldCalculateTotalPaymentCorrectly() {
+        TicketTypeRequest adultTicket = new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 1);
+        TicketTypeRequest childTicket = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 1);
+        TicketTypeRequest infantTicket = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
+
+        ticketService.purchaseTickets(1L, adultTicket, childTicket, infantTicket);
+
+        // Verify that the payment service is called with the correct total amount (20 for adult + 10 for child + 0 for infant = 40).
+        verify(ticketPaymentService).makePayment(1L, 40);
+    }
+
+    // Test Case 6 - Checks if the correct number of seats are reserved when one adult and one child ticket are purchased.
+    @Test
+    void shouldReserveCorrectNumberOfSeatsForAdultAndChild() {
+        TicketTypeRequest adultTicket = new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 1);
+        TicketTypeRequest childTicket = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 1);
+    
+        ticketService.purchaseTickets(1L, adultTicket, childTicket);
+    
+        // Verify that the seat reservation service is called with the correct number of seats (1 for adult + 1 for child = 2).
+        verify(seatReservationService).reserveSeat(1L, 2);
+    }
 }
+
